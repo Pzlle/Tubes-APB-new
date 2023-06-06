@@ -11,12 +11,13 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  var db = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  get docuser => null;
 
   @override
   void dispose() {
@@ -267,7 +268,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       height: 40,
                       child: ElevatedButton(
                         onPressed: () {
-                          _signUp();
+                          createUser(_signUp);
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -330,5 +331,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
       ),
     );
+  }
+
+  Future createUser(_signUp user) async {
+    final docUser = FirebaseFirestore.instance.collection('users').doc();
+    user.id = docUser.id;
+
+    final json = user.toJson();
+    await docuser.set(json);
   }
 }
