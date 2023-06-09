@@ -20,13 +20,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   get docuser => null;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  // void dispose() {
+  //   _nameController.dispose();
+  //   _emailController.dispose();
+  //   _usernameController.dispose();
+  //   _passwordController.dispose();
+  //   super.dispose();
+  // }
 
   void _logIn() {
     // TODO: Perform sign up logic
@@ -268,7 +268,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       height: 40,
                       child: ElevatedButton(
                         onPressed: () {
-                          createUser(_signUp);
+                          //_signUp();
+                          //createUser(_signUp);
+                          final user = User(
+                            name: _usernameController.text,
+                            password: _passwordController.text,
+                            username: _usernameController.text,
+                            email: _emailController.text,
+                          );
+                          createUser(user);
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -333,11 +341,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
-  Future createUser(_signUp user) async {
+  Future createUser(User user) async {
     final docUser = FirebaseFirestore.instance.collection('users').doc();
     user.id = docUser.id;
 
     final json = user.toJson();
     await docuser.set(json);
   }
+}
+
+class User {
+  String id;
+  final String name;
+  final String password;
+  final String username;
+  final String email;
+
+  User(
+      {this.id = '',
+      required this.name,
+      required this.password,
+      required this.username,
+      required this.email});
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'password': password,
+        'username': username,
+        'email': email,
+      };
 }
