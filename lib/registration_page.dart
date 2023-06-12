@@ -17,7 +17,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  get docUser => null;
+  //get docUser => null;
   late var user;
 
   @override
@@ -269,10 +269,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       height: 40,
                       child: ElevatedButton(
                         onPressed: () async {
-                          _signUp();
+                          //_signUp();
                           //createUser(_signUp);
                           setState(() {
                             user = User(
+                              id: 'test',
                               name: _usernameController.text,
                               password: _passwordController.text,
                               username: _usernameController.text,
@@ -280,6 +281,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             );
                           });
                           await createUser(user);
+                          _logIn();
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -369,10 +371,10 @@ class User {
       required this.email});
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'password': password,
-        'username': username,
-        'email': email,
+        id: id,
+        name: name,
+        password: password,
+        username: username,
+        email: email,
       };
 }
