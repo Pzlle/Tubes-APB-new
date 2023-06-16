@@ -13,7 +13,7 @@ class _NeedHelpPageState extends State<NeedHelpPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pusat Bantuan'),
-        backgroundColor: Color.fromARGB(255, 222, 75, 75),
+        backgroundColor: const Color.fromARGB(255, 222, 75, 75),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

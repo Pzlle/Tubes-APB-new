@@ -128,7 +128,7 @@ class _EditLaporanPageState extends State<EditLaporanPage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Container(
+                        SizedBox(
                           height: 43.0,
                           child: DropdownButtonFormField<String>(
                             value: _selectedTindakan,

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tubes/log_page.dart';
 import 'package:tubes/setting_page.dart';
 // import 'package:tubes/account_settings_page.dart';
 import 'Laporan_page.dart';
-import 'login_page.dart';
 import 'hamburger_page.dart';
 import 'package:ripple_wave/ripple_wave.dart';
 

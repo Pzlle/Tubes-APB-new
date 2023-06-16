@@ -3,16 +3,15 @@ import 'package:tubes/welcome_page.dart';
 import 'lapor_page.dart';
 import 'needhelp_page.dart';
 
-
 class SettingPage extends StatefulWidget {
-  const SettingPage({Key? key});
+  const SettingPage({super.key});
 
   @override
   _SettingPageState createState() => _SettingPageState();
 }
 
 class _SettingPageState extends State<SettingPage> {
-  String _name = '';
+  final String _name = '';
   String _username = '';
   String _email = '';
   String _password = '';
@@ -38,7 +37,7 @@ class _SettingPageState extends State<SettingPage> {
           child: IconButton(
             iconSize: 32,
             icon: const Icon(Icons.arrow_back_ios_new),
-            color: Color.fromARGB(255, 255, 255, 255),
+            color: const Color.fromARGB(255, 255, 255, 255),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -47,7 +46,7 @@ class _SettingPageState extends State<SettingPage> {
             },
           ),
         ),
-        title: Text(
+        title: const Text(
           'Hi, \nAzizi Shafaa Asadel',
           style: TextStyle(
             fontWeight: FontWeight.w500,
@@ -57,14 +56,14 @@ class _SettingPageState extends State<SettingPage> {
           ),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),bottomRight: Radius.circular(20)),
-              gradient: LinearGradient(
-                  colors: [Color.fromRGBO(220, 0, 0, 1),Color.fromRGBO(202, 202, 202, 1)],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter
-              )
-          ),
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20)),
+              gradient: LinearGradient(colors: [
+                Color.fromRGBO(220, 0, 0, 1),
+                Color.fromRGBO(202, 202, 202, 1)
+              ], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
         ),
       ),
       body: SingleChildScrollView(
@@ -75,17 +74,17 @@ class _SettingPageState extends State<SettingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 15),
-                      const CircleAvatar(
+                      SizedBox(height: 15),
+                      CircleAvatar(
                         backgroundImage: AssetImage('assets/images/ehe.jpeg'),
                         radius: 70,
                       ),
-                      const SizedBox(width: 16.0),
-                      // const Icon(Icons.person, size: 48.0),            
+                      SizedBox(width: 16.0),
+                      // const Icon(Icons.person, size: 48.0),
                       // Text(
                       //   'Hello, $_name',
                       //   style: const TextStyle(fontSize: 24.0),
@@ -218,14 +217,19 @@ class _SettingPageState extends State<SettingPage> {
                       child: TextButton.icon(
                         onPressed: () {
                           Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const WelcomePage()));
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const WelcomePage()));
                         },
-                        icon: const Icon(Icons.delete, color: Color.fromRGBO(238, 102, 102, 1.0),),
-                        label: const Text('Delete Account', style: TextStyle(color: Color.fromRGBO(238, 102, 102, 1.0)),),
-
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Color.fromRGBO(238, 102, 102, 1.0),
+                        ),
+                        label: const Text(
+                          'Delete Account',
+                          style: TextStyle(
+                              color: Color.fromRGBO(238, 102, 102, 1.0)),
+                        ),
                       ),
                     ),
                   ],
@@ -233,10 +237,11 @@ class _SettingPageState extends State<SettingPage> {
                 const SizedBox(height: 16.0),
                 InkWell(
                   onTap: _needHelp,
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.help_outline, color: Color.fromRGBO(238, 102, 102, 1.0)),
+                    children: [
+                      Icon(Icons.help_outline,
+                          color: Color.fromRGBO(238, 102, 102, 1.0)),
                       SizedBox(width: 8.0),
                       Text(
                         'Need Help?',

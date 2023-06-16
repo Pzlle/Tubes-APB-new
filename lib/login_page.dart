@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:tubes/lapor_page.dart';
 import 'package:tubes/needhelp_page.dart';
 import 'registration_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   void _login() {
-    // Validate username and password
-    String username = _usernameController.text;
+    String email = _emailController.text;
     String password = _passwordController.text;
-    if (username.isEmpty || password.isEmpty) {
+
+    if (email.isEmpty || password.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Login Failed'),
-            content: const Text('Username or password cannot be Empty'),
+            content: const Text('Email or password cannot be empty'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -35,33 +37,37 @@ class _LoginPageState extends State<LoginPage> {
           );
         },
       );
-    } else if (username == 'a' && password == 'a') {
-      // navigate to home page if login success
-      Navigator.pushReplacementNamed(context, '/lapor');
     } else {
-      // show alert dialog if login failed
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Login Failed'),
-            content: const Text('Username or password is incorrect'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LaporPage()),
+        );
+      }).catchError((error) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Login Failed'),
+              content: Text('Error: ${error.toString()}'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      });
     }
   }
 
   void _signUp() {
-    // TODO: Perform sign up logic
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const RegistrationPage()),
@@ -69,7 +75,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _needHelp() {
-    // TODO: Perform need help logic
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NeedHelpPage()),
@@ -98,11 +103,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 40, // adjust this value as per your requirement
+                    height: 40,
                     child: TextFormField(
-                      controller: _usernameController,
+                      controller: _emailController,
                       decoration: InputDecoration(
-                        labelText: 'Username',
+                        labelText: 'Email',
                         border: InputBorder.none,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -120,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Username cannot be empty';
+                          return 'Email cannot be empty';
                         }
                         return null;
                       },
@@ -128,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 40, // adjust this value as per your requirement
+                    height: 40,
                     child: TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
@@ -160,9 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height: 40,
                     child: ElevatedButton(
-                      onPressed: () {
-                        _login();
-                      },
+                      onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),

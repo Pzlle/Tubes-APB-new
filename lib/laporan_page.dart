@@ -60,7 +60,7 @@ class _LaporanPageState extends State<LaporanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -68,24 +68,21 @@ class _LaporanPageState extends State<LaporanPage> {
           padding: const EdgeInsets.only(top: 10, left: 10),
           child: IconButton(
             iconSize: 32,
-            icon: const Icon(Icons.arrow_back_ios_new), 
+            icon: const Icon(Icons.arrow_back_ios_new),
             color: Colors.black,
-            onPressed: () { 
+            onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        const LaporPage()),
+                MaterialPageRoute(builder: (context) => const LaporPage()),
               );
-             },
+            },
           ),
         ),
       ),
       body: Container(
-        
         child: Form(
           key: _formKey,
-          child: Container(           
+          child: Container(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Padding(
@@ -94,7 +91,7 @@ class _LaporanPageState extends State<LaporanPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     RichText(
-                      text: TextSpan(
+                      text: const TextSpan(
                         text: 'Tuliskan\nLaporan Anda',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -119,43 +116,50 @@ class _LaporanPageState extends State<LaporanPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Container(
+                          SizedBox(
                             height: 43.0,
                             child: DropdownButtonFormField<String>(
                               value: _selectedTindakan,
                               items: const [
                                 DropdownMenuItem<String>(
                                   value: 'Tindakan1',
-                                  child: Text('Tindakan 1', style: TextStyle(fontSize: 14)),
+                                  child: Text('Tindakan 1',
+                                      style: TextStyle(fontSize: 14)),
                                 ),
                                 DropdownMenuItem<String>(
                                   value: 'Tindakan2',
-                                  child: Text('Tindakan 2', style: TextStyle(fontSize: 14)),
+                                  child: Text('Tindakan 2',
+                                      style: TextStyle(fontSize: 14)),
                                 ),
                                 DropdownMenuItem<String>(
                                   value: 'Tindakan3',
-                                  child: Text('Tindakan 3', style: TextStyle(fontSize: 14)),
+                                  child: Text('Tindakan 3',
+                                      style: TextStyle(fontSize: 14)),
                                 ),
                               ],
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.grey[200],
                                 // labelText: 'Jenis Tindakan',
-                                labelStyle: TextStyle(color: Color.fromRGBO(217, 217, 217, 1)),
+                                labelStyle: const TextStyle(
+                                    color: Color.fromRGBO(217, 217, 217, 1)),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Color.fromRGBO(217, 217, 217, 1)),
+                                  borderSide: const BorderSide(
+                                      color: Color.fromRGBO(217, 217, 217, 1)),
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Color.fromRGBO(217, 217, 217, 1)),
+                                  borderSide: const BorderSide(
+                                      color: Color.fromRGBO(217, 217, 217, 1)),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
                               ),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontFamily: "inter",
                                 fontSize: 14,
@@ -197,7 +201,8 @@ class _LaporanPageState extends State<LaporanPage> {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Color.fromRGBO(217, 217, 217, 1)),
+                          border: Border.all(
+                              color: const Color.fromRGBO(217, 217, 217, 1)),
                           color: Colors.grey[200],
                         ),
                         child: Row(
@@ -205,7 +210,7 @@ class _LaporanPageState extends State<LaporanPage> {
                           children: [
                             Text(
                               DateFormat('dd/MM/yyyy').format(_selectedDate),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontFamily: "inter",
                                 fontSize: 14,
@@ -231,12 +236,12 @@ class _LaporanPageState extends State<LaporanPage> {
                     TextFormField(
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
-                      
                       decoration: InputDecoration(
                         hintText: 'Deskripsi kronologi kejadian',
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Color.fromRGBO(217, 217, 217, 1)),
+                          borderSide: const BorderSide(
+                              color: Color.fromRGBO(217, 217, 217, 1)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -274,14 +279,14 @@ class _LaporanPageState extends State<LaporanPage> {
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                          // _getImage();
+                          _getImage();
                         },
                         child: Container(
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Color.fromRGBO(238, 238, 238, 1),
+                              color: const Color.fromRGBO(238, 238, 238, 1),
                               width: 60,
-                              ),
+                            ),
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: _imageFile == null
@@ -299,29 +304,32 @@ class _LaporanPageState extends State<LaporanPage> {
                     const SizedBox(height: 16.0),
                     Align(
                       alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // TODO: implement submit function
-                          _showSnackBar('Laporan berhasil disimpan');
-                        }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const LaporPage()));
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Color.fromRGBO(238, 102, 102, 1.0),), // Set button color to red
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0), // Set border radius to 15
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            // TODO: implement submit function
+                            _showSnackBar('Laporan berhasil disimpan');
+                          }
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LaporPage()));
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color.fromRGBO(238, 102, 102, 1.0),
+                          ), // Set button color to red
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  15.0), // Set border radius to 15
+                            ),
                           ),
                         ),
+                        child: const Text('Simpan'),
                       ),
-                      child: const Text('Simpan'),
                     ),
-                  ),
                   ],
                 ),
               ),

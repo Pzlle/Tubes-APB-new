@@ -2,35 +2,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'needhelp_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({super.key});
+  const RegistrationPage({Key? key}) : super(key: key);
 
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  //get docUser => null;
-  late var user;
+  late User? user;
 
   @override
-  // void dispose() {
-  //   _nameController.dispose();
-  //   _emailController.dispose();
-  //   _usernameController.dispose();
-  //   _passwordController.dispose();
-  //   super.dispose();
-  // }
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _logIn() {
-    // TODO: Perform sign up logic
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -38,25 +38,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _needHelp() {
-    // TODO: Perform need help logic
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NeedHelpPage()),
     );
   }
 
-  void _signUp() {
+  void _signUp() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
     String name = _nameController.text;
     String email = _emailController.text;
+
     if (username.isEmpty || password.isEmpty || name.isEmpty || email.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Login Failed'),
-            content: const Text('Data cannot be Empty'),
+            title: const Text('Registration Failed'),
+            content: const Text('Data cannot be empty'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -73,8 +73,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Login Failed'),
-            content: const Text('Email Not Valod'),
+            title: const Text('Registration Failed'),
+            content: const Text('Email Not Valid'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -91,7 +91,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Login Failed'),
+            title: const Text('Registration Failed'),
             content: const Text('Password must be at least 6 characters'),
             actions: [
               TextButton(
@@ -105,8 +105,63 @@ class _RegistrationPageState extends State<RegistrationPage> {
         },
       );
     } else {
-      //go to home
-      _logIn();
+      try {
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        User? firebaseUser = userCredential.user;
+        if (firebaseUser != null) {
+          await createUser(firebaseUser.uid, name, username);
+          _logIn();
+        }
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Registration Failed'),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  Future<void> createUser(String userId, String name, String username) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'name': name,
+        'username': username,
+      });
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Registration Failed'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -121,7 +176,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             children: [
               const SizedBox(height: 110),
               RichText(
-                text: TextSpan(
+                text: const TextSpan(
                   text: 'Create your\naccount',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
@@ -138,7 +193,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(
-                      height: 40, // adjust this value as per your requirement
+                      height: 40,
                       child: TextFormField(
                         controller: _nameController,
                         decoration: InputDecoration(
@@ -168,7 +223,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     const SizedBox(height: 16.0),
                     SizedBox(
-                      height: 40, // adjust this value as per your requirement
+                      height: 40,
                       child: TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -202,7 +257,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     const SizedBox(height: 16.0),
                     SizedBox(
-                      height: 40, // adjust this value as per your requirement
+                      height: 40,
                       child: TextFormField(
                         controller: _usernameController,
                         decoration: InputDecoration(
@@ -232,7 +287,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     const SizedBox(height: 16.0),
                     SizedBox(
-                      height: 40, // adjust this value as per your requirement
+                      height: 40,
                       child: TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -269,19 +324,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       height: 40,
                       child: ElevatedButton(
                         onPressed: () async {
-                          //_signUp();
-                          //createUser(_signUp);
-                          setState(() {
-                            user = User(
-                              id: 'test',
-                              name: _usernameController.text,
-                              password: _passwordController.text,
-                              username: _usernameController.text,
-                              email: _emailController.text,
-                            );
-                          });
-                          await createUser(user);
-                          _logIn();
+                          _signUp();
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -321,7 +364,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
               const SizedBox(height: 120),
               Column(
                 children: [
-                  // Widget lain di sini
                   Padding(
                     padding: const EdgeInsets.only(left: 0, bottom: 24),
                     child: Align(
@@ -345,36 +387,4 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ),
     );
   }
-
-  Future<void> createUser(User user) async {
-    CollectionReference docUser =
-        FirebaseFirestore.instance.collection('users');
-    user.id = docUser.id;
-
-    final json = user.toJson();
-    await docUser.add(json);
-  }
-}
-
-class User {
-  String id;
-  final String name;
-  final String password;
-  final String username;
-  final String email;
-
-  User(
-      {this.id = '',
-      required this.name,
-      required this.password,
-      required this.username,
-      required this.email});
-
-  Map<String, dynamic> toJson() => {
-        id: id,
-        name: name,
-        password: password,
-        username: username,
-        email: email,
-      };
 }

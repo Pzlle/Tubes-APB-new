@@ -6,10 +6,7 @@ import 'lapor_page.dart';
 import 'login_page.dart';
 import 'registration_page.dart';
 import 'welcome_page.dart';
-import 'Laporan_page.dart';
 import 'log_page.dart';
-import 'setting_page.dart';
-import 'edit_laporan_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
