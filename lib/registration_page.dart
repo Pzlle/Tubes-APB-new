@@ -113,7 +113,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         );
         User? firebaseUser = userCredential.user;
         if (firebaseUser != null) {
-          await createUser(firebaseUser.uid, name, username);
+          await createUser(firebaseUser.uid, name, username, email);
           _logIn();
         }
       } catch (e) {
@@ -138,11 +138,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
-  Future<void> createUser(String userId, String name, String username) async {
+  Future<void> createUser(String userId, String namaasli ,String email, String username) async {
     try {
       await FirebaseFirestore.instance.collection('users').doc(userId).set({
-        'name': name,
-        'username': username,
+        'email': email,
+        'namaasli': namaasli,
+        'uid' : userId,
+        'username' : username,
       });
     } catch (e) {
       showDialog(
