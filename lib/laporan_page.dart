@@ -1,9 +1,14 @@
 import 'dart:io';
-
+import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:tubes/lapor_page.dart';
+import 'package:tubes/needhelp_page.dart';
 
 class LaporanPage extends StatefulWidget {
   const LaporanPage({Key? key}) : super(key: key);
@@ -13,330 +18,343 @@ class LaporanPage extends StatefulWidget {
 }
 
 class _LaporanPageState extends State<LaporanPage> {
-  DateTime _selectedDate = DateTime.now();
-  String? _selectedTindakan;
-  String? _deskripsiKronologi;
-  File? _imageFile;
-
   final _formKey = GlobalKey<FormState>();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final TextEditingController _JenisTindakan = TextEditingController();
+  final TextEditingController _TanggalKejadian = TextEditingController();
+  final TextEditingController _deskripsiKronologi = TextEditingController();
+  final TextEditingController _TempatKejadian = TextEditingController();
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2021),
-      lastDate: DateTime(2030),
+  // late User? user;
+
+  @override
+  void dispose() {
+    _JenisTindakan.dispose();
+    _TanggalKejadian.dispose();
+    _deskripsiKronologi.dispose();
+    _TempatKejadian.dispose();
+    super.dispose();
+  }
+
+  void _cancel() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LaporPage()),
     );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+  }
+
+  void _needHelp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const NeedHelpPage()),
+    );
+  }
+
+  void _signUp() async {
+    String jenis = _JenisTindakan.text;
+    String tanggal = _TanggalKejadian.text;
+    String deskripsi = _deskripsiKronologi.text;
+    String tempat = _TempatKejadian.text;
+
+    createLaporan(jenis, tanggal, deskripsi, tempat);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LaporPage()),
+    );
+    if (jenis.isEmpty || tanggal.isEmpty || deskripsi.isEmpty || tempat.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Laporan gagal'),
+            content: const Text('Data cannot be empty'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else if (tempat.length < 6) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Registration Failed'),
+            content: const Text('Password must be at least 6 characters'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  Future<void> _getImage() async {
-    final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
-    setState(() {
-      if (pickedFile != null) {
-        _imageFile = File(pickedFile.path);
-      } else {
-        _showSnackBar('Tidak dapat memilih gambar');
-      }
-    });
+  Future<void> createLaporan(String jenis, String tanggal ,String deskripsi, String tempat) async {
+    try {
+      await FirebaseFirestore.instance.collection('Laporan').doc().set({
+        'jenis': jenis,
+        'tanggal': tanggal,
+        'deskripsi' : deskripsi,
+        'tempat' : tempat,
+      });
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Laporan Failed'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 10, left: 10),
-          child: IconButton(
-            iconSize: 32,
-            icon: const Icon(Icons.arrow_back_ios_new),
-            color: Colors.black,
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LaporPage()),
-              );
-            },
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white,
       body: Container(
-        child: Form(
-          key: _formKey,
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 5, left: 13, right: 13),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: ListView(
+            children: [
+              const SizedBox(height: 110),
+              RichText(
+                text: const TextSpan(
+                  text: 'Tuliskan\nLaporan Anda',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: "inter",
+                    fontSize: 30,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Form(
+                key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    RichText(
-                      text: const TextSpan(
-                        text: 'Tuliskan\nLaporan Anda',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "inter",
-                          fontSize: 27,
-                          color: Colors.black,
+                    SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        controller: _JenisTindakan,
+                        decoration: InputDecoration(
+                          labelText: 'jenis Tindakan',
+                          border: InputBorder.none,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          labelStyle: TextStyle(
+                            color: Colors.grey[700],
+                          ),
                         ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Nama tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    const SizedBox(height: 35),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Jenis Tindakan',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontFamily: "inter",
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
+                    const SizedBox(height: 16.0),
+                    SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        controller: _TanggalKejadian,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Tanggal Kejadian',
+                          border: InputBorder.none,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
                           ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 43.0,
-                            child: DropdownButtonFormField<String>(
-                              value: _selectedTindakan,
-                              items: const [
-                                DropdownMenuItem<String>(
-                                  value: 'Tindakan1',
-                                  child: Text('Tindakan 1',
-                                      style: TextStyle(fontSize: 14)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'Tindakan2',
-                                  child: Text('Tindakan 2',
-                                      style: TextStyle(fontSize: 14)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'Tindakan3',
-                                  child: Text('Tindakan 3',
-                                      style: TextStyle(fontSize: 14)),
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.grey[200],
-                                // labelText: 'Jenis Tindakan',
-                                labelStyle: const TextStyle(
-                                    color: Color.fromRGBO(217, 217, 217, 1)),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      color: Color.fromRGBO(217, 217, 217, 1)),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      color: Color.fromRGBO(217, 217, 217, 1)),
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          labelStyle: TextStyle(
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Email tidak boleh kosong';
+                          }
+                          if (!value.contains('@gmail.com')) {
+                            return 'Email tidak valid';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        controller: _deskripsiKronologi,
+                        decoration: InputDecoration(
+                          labelText: 'Deskripsi Kronologi',
+                          border: InputBorder.none,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          labelStyle: TextStyle(
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Username cannot be empty';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        controller: _TempatKejadian,
+                        // obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Tempat Kejadian',
+                          border: InputBorder.none,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          labelStyle: TextStyle(
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Tempat kejadian cannot be empty';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 40,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          _signUp();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          backgroundColor:
+                              const Color.fromRGBO(238, 102, 102, 1.0),
+                        ),
+                        child: const Text('Submit'),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Center(
+                      child: Row(
+                        children: [
+                          TextButton(
+                            onPressed: _cancel,
+                            child: const Text(
+                              '                                    cancel',
+                              style: TextStyle(
+                                color: Color.fromRGBO(238, 102, 102, 1.0),
                               ),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "inter",
-                                fontSize: 14,
-                                color: Colors.black,
-                              ), // Adjust the font size
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Jenis tindakan harus diisi';
-                                }
-                                return null;
-                              },
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _selectedTindakan = value;
-                                });
-                              },
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16.0),
-                    const Text(
-                      'Tanggal Kejadian',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "inter",
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    GestureDetector(
-                      onTap: () {
-                        _selectDate(context);
-                      },
-                      child: Container(
-                        height: 43,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                              color: const Color.fromRGBO(217, 217, 217, 1)),
-                          color: Colors.grey[200],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateFormat('dd/MM/yyyy').format(_selectedDate),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "inter",
-                                fontSize: 14,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const Icon(Icons.calendar_today),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Text(
-                      'Deskripsi Kronologi',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "inter",
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    TextFormField(
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        hintText: 'Deskripsi kronologi kejadian',
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: const BorderSide(
-                              color: Color.fromRGBO(217, 217, 217, 1)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        labelStyle: TextStyle(
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Deskripsi kronologi harus diisi';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          _deskripsiKronologi = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Text(
-                      'Foto Bukti',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "inter",
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          _getImage();
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: const Color.fromRGBO(238, 238, 238, 1),
-                              width: 60,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: _imageFile == null
-                              ? const Icon(
-                                  Icons.add_a_photo,
-                                  size: 50.0,
-                                )
-                              : Image.file(
-                                  _imageFile!,
-                                  height: 150.0,
-                                ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // TODO: implement submit function
-                            _showSnackBar('Laporan berhasil disimpan');
-                          }
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LaporPage()));
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            const Color.fromRGBO(238, 102, 102, 1.0),
-                          ), // Set button color to red
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  15.0), // Set border radius to 15
-                            ),
-                          ),
-                        ),
-                        child: const Text('Simpan'),
-                      ),
-                    ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
+
+  // Future createLaporan({required String selectedTindakan}) async {
+  //   final docLaporan = FirebaseFirestore.instance.collection('Laporan').doc(); 
+  
+  //   final laporan = Laporan{
+  //     id: docLaporan.id,
+  //     name : name,
+  //     age : 21,
+  //     birthday: DateTime(2001,7,28),
+  //   };
+
+  //   await docLaporan.set(json);
+  // }
 }
+
+// class Laporan {
+//   String id;
+//   final DateTime _selectedDate;
+//   final String _selectedTindakan;
+//   final String _deskripsiKronologi;
+//   final File _imageFile;
+
+//   Laporan({
+//     this.id = '',
+//     required this._selectedDate,
+//     required this._selectedTindakan,
+//     required this._deskripsiKronologi,
+//     required this._imageFile,
+//   });
+
+//   Map<String, dynamic> to Json() => {
+//     'id' : id,
+//     'ndate' : _selectedDate,
+//     'deskrisi' : _deskripsiKronologi,
+//     'imagefile' : _imageFile,
+//   };
+// }

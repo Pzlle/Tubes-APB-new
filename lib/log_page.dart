@@ -29,7 +29,7 @@ class _LogPageState extends State<LogPage> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       key: _scaffoldKey,
-      drawer: const CustomDrawer(),
+      drawer: CustomDrawer(),
       body: Stack(
         children: <Widget>[
           Container(
